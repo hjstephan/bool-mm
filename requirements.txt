@@ -1,0 +1,8 @@
+coverage
+iniconfig
+numpy
+packaging
+pluggy
+Pygments
+pytest
+pytest-cov

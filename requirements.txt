@@ -6,3 +6,4 @@ pluggy
 Pygments
 pytest
 pytest-cov
+matplotlib

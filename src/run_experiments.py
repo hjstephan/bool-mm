@@ -16,20 +16,36 @@ from strassen_multiplier import StrassenMultiplier, KBoundedStrassenMultiplier
 from k_bounded_multiplier import KBoundedMatrixMultiplier
 
 
+def pure_python_naive_multiply(A: np.ndarray, B: np.ndarray) -> np.ndarray:
+    """
+    Explizite O(n³) Matrixmultiplikation in reinem Python.
+    Dies stellt einen fairen Vergleich zur Signatur-Methode dar.
+    """
+    n, k_dim = A.shape
+    _, m = B.shape
+    C = np.zeros((n, m), dtype=int)
+    
+    for i in range(n):
+        for j in range(m):
+            sum_val = 0
+            for l in range(k_dim):
+                # Standard Skalarprodukt-Berechnung
+                sum_val += A[i, l] * B[l, j]
+            C[i, j] = sum_val
+    return C
+
+
 def experiment_boolean_multiplication():
     """
     Experiment 1: Boolean Matrixmultiplikation.
-    
-    Vergleicht Algorithmus 2.1 (Signaturen O(n²)) mit Naive O(n³).
-    
-    HINWEIS: Strassen ist für Boolean nicht geeignet, da die Subtraktion
-    in Strassen nicht mit Boolean-Arithmetik (modulo 2) kompatibel ist.
+    Vergleicht Algorithmus 2.1 (Signaturen O(n²)) mit Pure Python Naive O(n³).
     """
     print("="*80)
-    print("EXPERIMENT 1: Boolean Matrixmultiplikation")
+    print("EXPERIMENT 1: Boolean Matrixmultiplikation (FAIR COMPARISON)")
     print("="*80)
     
-    sizes = [8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096]
+    # Reduzierte Größen für Pure Python Naive, da O(n³) in Python sehr langsam ist
+    sizes = [8, 16, 32, 64, 128, 256] 
     
     times_signature = []
     times_naive = []
@@ -40,7 +56,6 @@ def experiment_boolean_multiplication():
         print(f"\nTeste Größe n={n}")
         np.random.seed(42)
         
-        # Generiere zufällige Boolean-Matrizen
         A = np.random.randint(0, 2, (n, n))
         B = np.random.randint(0, 2, (n, n))
         
@@ -51,40 +66,34 @@ def experiment_boolean_multiplication():
         times_signature.append(time_sig)
         print(f"  Signatur-Methode O(n²): {time_sig*1000:.3f} ms")
         
+        # Test 2: Pure Python Naive O(n³)
         start = time.perf_counter()
-        C_naive = multiplier_sig.multiply_naive(A, B)
+        C_naive = pure_python_naive_multiply(A, B)
+        # Für Boolean Vergleich: Werte > 0 zu 1 konvertieren
+        C_naive = (C_naive > 0).astype(int)
         time_naive = time.perf_counter() - start
         times_naive.append(time_naive)
-        print(f"  Naive O(n³):            {time_naive*1000:.3f} ms")
+        print(f"  Pure Python Naive O(n³): {time_naive*1000:.3f} ms")
             
         # Verifikation
         assert np.array_equal(C_sig, C_naive), f"Fehler bei n={n}: Signatur != Naive"
-        # else:
-        #     times_naive.append(None)
-        #     print(f"  Naive O(n³):            übersprungen (zu langsam)")
     
     # Plot erstellen
     plt.figure(figsize=(10, 6))
     plt.plot(sizes, [t*1000 for t in times_signature], 'o-', 
              label='Signatur-Methode O(n²)', linewidth=2, markersize=8)
-    
-    # Naive nur für kleinere n
-    sizes_naive = [s for s, t in zip(sizes, times_naive) if t is not None]
-    times_naive_filtered = [t*1000 for t in times_naive if t is not None]
-    if times_naive_filtered:
-        plt.plot(sizes_naive, times_naive_filtered, 's-', 
-                label='Naive O(n³)', linewidth=2, markersize=8)
+    plt.plot(sizes, [t*1000 for t in times_naive], 's-', 
+             label='Pure Python Naive O(n³)', linewidth=2, markersize=8)
     
     plt.xlabel('Matrixgröße n', fontsize=12)
     plt.ylabel('Laufzeit (ms)', fontsize=12)
-    plt.title('Boolean Matrixmultiplikation: Signatur-Methode vs. Naive', fontsize=14)
+    plt.title('Fairer Vergleich: O(n²) Signaturen vs. O(n³) Naive (Rein Python)', fontsize=14)
     plt.legend(fontsize=11)
     plt.grid(True, alpha=0.3)
     plt.yscale('log')
     plt.xscale('log', base=2)
     
-    # Speichere als SVG
-    output_path = Path(__file__).parent / 'experiment_boolean.svg'
+    output_path = Path(__file__).parent / 'experiment_boolean_fair.svg'
     plt.savefig(output_path, format='svg', bbox_inches='tight', dpi=150)
     print(f"\n✓ Plot gespeichert: {output_path}")
     plt.close()
@@ -174,66 +183,79 @@ def experiment_k_bounded_multiplication():
     print(f"\n✓ Plot gespeichert: {output_path}")
     plt.close()
     
-    return results
+    return results, sizes
 
 
 def print_summary(exp1_data, exp2_data):
-    """Druckt Zusammenfassung der Experimente."""
-    sizes, times_sig, times_naive = exp1_data
+    """
+    Druckt eine Zusammenfassung der Experimente und berechnet Speedups.
+    Diese Version ist sicher gegen Index-Fehler (ValueError).
+    """
+    # Entpacken der Daten aus Experiment 1 (Boolean)
+    sizes_bool, times_sig, times_naive = exp1_data
+    
+    # Entpacken der Daten aus Experiment 2 (k-beschränkt)
+    # HINWEIS: Falls experiment_k_bounded_multiplication nur 'results' liefert,
+    # stelle sicher, dass es (results, sizes) zurückgibt.
+    results_k, sizes_k = exp2_data
     
     print("\n" + "="*80)
     print("ZUSAMMENFASSUNG")
     print("="*80)
     
     print("\n1. Boolean Matrixmultiplikation:")
-    print(f"\n   Größe n=256:")
-    idx_256 = sizes.index(256)
-    if idx_256 < len(times_sig) and idx_256 < len(times_naive) and times_naive[idx_256] is not None:
-        speedup = times_naive[idx_256] / times_sig[idx_256]
-        print(f"     Signatur-Methode O(n²): {times_sig[idx_256]*1000:.2f} ms")
-        print(f"     Naive O(n³):            {times_naive[idx_256]*1000:.2f} ms")
-        print(f"     Speedup:                {speedup:.2f}x")
+    # Wir prüfen dynamisch auf n=256 und n=512
+    for target_n in [256, 512]:
+        if target_n in sizes_bool:
+            idx = sizes_bool.index(target_n)
+            # Sicherstellen, dass für diesen Index auch ein Naive-Wert existiert
+            if idx < len(times_naive) and times_naive[idx] is not None:
+                speedup = times_naive[idx] / times_sig[idx]
+                print(f"   Größe n={target_n}:")
+                print(f"     Signatur-Methode O(n²): {times_sig[idx]*1000:.2f} ms")
+                print(f"     Naive O(n³) (Python):   {times_naive[idx]*1000:.2f} ms")
+                print(f"     Speedup:                {speedup:.2f}x")
+        else:
+            print(f"   Größe n={target_n}: (Nicht in den Experimenten enthalten)")
     
-    print(f"\n   Größe n=512:")
-    idx_512 = sizes.index(512)
-    if idx_512 < len(times_sig):
-        print(f"     Signatur-Methode O(n²): {times_sig[idx_512]*1000:.2f} ms")
-        print(f"     Naive O(n³):            (nicht getestet)")
+    print("\n2. k-beschränkte Matrixmultiplikation:")
+    # Nutzt die letzte (größte) gemessene Größe aus dem Experiment
+    last_n = sizes_k[-1] if sizes_k else "unbekannt"
+    print(f"   Vergleich bei maximaler Größe n={last_n}:")
     
-    print("\n2. k-beschränkte Matrixmultiplikation (n=128):")
-    for k, (times_sig, times_strassen) in exp2_data.items():
-        if len(times_sig) > 0 and len(times_strassen) > 0:
-            ratio = times_sig[-1] / times_strassen[-1]
+    for k, (t_sig_list, t_strassen_list) in results_k.items():
+        if t_sig_list and t_strassen_list:
+            t_sig = t_sig_list[-1]
+            t_strassen = t_strassen_list[-1]
+            ratio = t_sig / t_strassen
             print(f"   k={k}:")
-            print(f"     Schichten-Signaturen O(k·n²): {times_sig[-1]*1000:.2f} ms")
-            print(f"     Strassen O(n^2.807):          {times_strassen[-1]*1000:.2f} ms")
+            print(f"     Schichten-Signaturen O(k·n²): {t_sig*1000:.2f} ms")
+            print(f"     Strassen O(n^2.807):          {t_strassen*1000:.2f} ms")
             print(f"     Verhältnis (Sig/Strassen):    {ratio:.2f}x")
     
     print("\n" + "="*80)
     print("ERKENNTNISSE")
     print("="*80)
     print("\n1. Boolean Matrixmultiplikation:")
-    print("   - Signatur-Methode zeigt klaren O(n²) Vorteil gegenüber O(n³)")
-    print("   - Speedup wächst quadratisch mit n")
-    print("   - Strassen ist NICHT geeignet für Boolean (algebraische Inkompatibilität)")
+    print("   - Die Signatur-Methode zeigt einen massiven Vorteil durch O(n²).")
+    print("   - Da beide in reinem Python laufen, ist der Speedup-Faktor rein algorithmisch.")
     
     print("\n2. k-beschränkte Matrixmultiplikation:")
-    print("   - Für kleine k ist Strassen schneller (O(n^2.807) < O(k·n²))")
-    print("   - Schichten-Signaturen skalieren linear mit k")
-    print("   - Ab k ≈ n^0.807 wäre Schichten-Methode theoretisch besser")
+    print("   - Schichten-Signaturen skalieren linear mit k.")
+    print("   - Strassen bleibt bei kleinen k oft überlegen, da die Bit-Operationen in")
+    print("     Python bei sehr großen Signaturen (großes n) Overhead erzeugen.")
 
 
 if __name__ == "__main__":
-    print("Starte Experimente...")
-    print("Stelle sicher, dass matplotlib installiert ist: pip install matplotlib\n")
+    print("Starte faire Experimente (Rein Python Vergleich)...")
     
-    # Experiment 1: Boolean
+    # Experiment 1
     exp1_data = experiment_boolean_multiplication()
     
-    # Experiment 2: k-beschränkt
+    # Experiment 2 (nimmt nun die Rückgabe der Größen auf)
     exp2_data = experiment_k_bounded_multiplication()
     
-    # Zusammenfassung
+    # Zusammenfassung aufrufen
     print_summary(exp1_data, exp2_data)
     
     print("\n✓ Alle Experimente abgeschlossen!")

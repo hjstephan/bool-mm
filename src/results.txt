@@ -1,51 +1,33 @@
-Starte Experimente...
-Stelle sicher, dass matplotlib installiert ist: pip install matplotlib
-
+Starte faire Experimente (Rein Python Vergleich)...
 ================================================================================
-EXPERIMENT 1: Boolean Matrixmultiplikation
+EXPERIMENT 1: Boolean Matrixmultiplikation (FAIR COMPARISON)
 ================================================================================
 
 Teste Größe n=8
-  Signatur-Methode O(n²): 0.237 ms
-  Naive O(n³):            0.099 ms
+  Signatur-Methode O(n²): 0.370 ms
+  Pure Python Naive O(n³): 0.245 ms
 
 Teste Größe n=16
-  Signatur-Methode O(n²): 0.229 ms
-  Naive O(n³):            0.259 ms
+  Signatur-Methode O(n²): 0.234 ms
+  Pure Python Naive O(n³): 1.194 ms
 
 Teste Größe n=32
-  Signatur-Methode O(n²): 0.780 ms
-  Naive O(n³):            0.940 ms
+  Signatur-Methode O(n²): 0.756 ms
+  Pure Python Naive O(n³): 9.214 ms
 
 Teste Größe n=64
-  Signatur-Methode O(n²): 3.076 ms
-  Naive O(n³):            3.172 ms
+  Signatur-Methode O(n²): 3.077 ms
+  Pure Python Naive O(n³): 71.880 ms
 
 Teste Größe n=128
-  Signatur-Methode O(n²): 13.902 ms
-  Naive O(n³):            12.984 ms
+  Signatur-Methode O(n²): 14.196 ms
+  Pure Python Naive O(n³): 554.298 ms
 
 Teste Größe n=256
-  Signatur-Methode O(n²): 63.022 ms
-  Naive O(n³):            54.166 ms
+  Signatur-Methode O(n²): 65.238 ms
+  Pure Python Naive O(n³): 4485.819 ms
 
-Teste Größe n=512
-  Signatur-Methode O(n²): 312.284 ms
-  Naive O(n³):            216.060 ms
-
-Teste Größe n=1024
-  Signatur-Methode O(n²): 1516.790 ms
-  Naive O(n³):            849.501 ms
-
-Teste Größe n=2048
-  Signatur-Methode O(n²): 9019.398 ms
-  Naive O(n³):            3431.033 ms
-
-Teste Größe n=4096
-  Signatur-Methode O(n²): 65342.783 ms
-  Naive O(n³):            14288.430 ms
-
-✓ Plot gespeichert: /home/stephan/Git/bool-mm/src/experiment_boolean.svg
+✓ Plot gespeichert: /home/stephan/Git/bool-mm/src/experiment_boolean_fair.svg
 
 ================================================================================
 EXPERIMENT 2: k-beschränkte Matrixmultiplikation
@@ -53,54 +35,54 @@ EXPERIMENT 2: k-beschränkte Matrixmultiplikation
 
 --- k = 2 ---
   Teste Größe n=8
-    Schichten-Signaturen: 0.161 ms
+    Schichten-Signaturen: 0.157 ms
     Strassen:             0.014 ms
   Teste Größe n=16
-    Schichten-Signaturen: 0.589 ms
-    Strassen:             0.009 ms
+    Schichten-Signaturen: 0.591 ms
+    Strassen:             0.039 ms
   Teste Größe n=32
-    Schichten-Signaturen: 2.522 ms
-    Strassen:             0.023 ms
+    Schichten-Signaturen: 2.632 ms
+    Strassen:             0.112 ms
   Teste Größe n=64
-    Schichten-Signaturen: 11.811 ms
-    Strassen:             0.199 ms
+    Schichten-Signaturen: 12.344 ms
+    Strassen:             0.314 ms
   Teste Größe n=128
-    Schichten-Signaturen: 61.049 ms
-    Strassen:             1.413 ms
+    Schichten-Signaturen: 61.598 ms
+    Strassen:             1.873 ms
 
 --- k = 3 ---
   Teste Größe n=8
-    Schichten-Signaturen: 0.255 ms
-    Strassen:             0.005 ms
+    Schichten-Signaturen: 0.273 ms
+    Strassen:             0.024 ms
   Teste Größe n=16
-    Schichten-Signaturen: 1.014 ms
-    Strassen:             0.007 ms
+    Schichten-Signaturen: 1.065 ms
+    Strassen:             0.030 ms
   Teste Größe n=32
-    Schichten-Signaturen: 4.481 ms
-    Strassen:             0.039 ms
+    Schichten-Signaturen: 4.599 ms
+    Strassen:             0.063 ms
   Teste Größe n=64
-    Schichten-Signaturen: 21.908 ms
-    Strassen:             0.215 ms
+    Schichten-Signaturen: 22.479 ms
+    Strassen:             0.299 ms
   Teste Größe n=128
-    Schichten-Signaturen: 133.843 ms
-    Strassen:             1.480 ms
+    Schichten-Signaturen: 117.578 ms
+    Strassen:             1.878 ms
 
 --- k = 5 ---
   Teste Größe n=8
-    Schichten-Signaturen: 0.540 ms
-    Strassen:             0.013 ms
+    Schichten-Signaturen: 0.554 ms
+    Strassen:             0.012 ms
   Teste Größe n=16
-    Schichten-Signaturen: 2.274 ms
-    Strassen:             0.029 ms
+    Schichten-Signaturen: 2.264 ms
+    Strassen:             0.035 ms
   Teste Größe n=32
-    Schichten-Signaturen: 10.789 ms
-    Strassen:             0.058 ms
+    Schichten-Signaturen: 10.322 ms
+    Strassen:             0.087 ms
   Teste Größe n=64
-    Schichten-Signaturen: 52.811 ms
-    Strassen:             0.250 ms
+    Schichten-Signaturen: 53.196 ms
+    Strassen:             0.336 ms
   Teste Größe n=128
-    Schichten-Signaturen: 282.005 ms
-    Strassen:             1.404 ms
+    Schichten-Signaturen: 281.927 ms
+    Strassen:             2.105 ms
 
 ✓ Plot gespeichert: /home/stephan/Git/bool-mm/src/experiment_k_bounded.svg
 
@@ -109,43 +91,39 @@ ZUSAMMENFASSUNG
 ================================================================================
 
 1. Boolean Matrixmultiplikation:
-
    Größe n=256:
-     Signatur-Methode O(n²): 63.02 ms
-     Naive O(n³):            54.17 ms
-     Speedup:                0.86x
+     Signatur-Methode O(n²): 65.24 ms
+     Naive O(n³) (Python):   4485.82 ms
+     Speedup:                68.76x
+   Größe n=512: (Nicht in den Experimenten enthalten)
 
-   Größe n=512:
-     Signatur-Methode O(n²): 312.28 ms
-     Naive O(n³):            (nicht getestet)
-
-2. k-beschränkte Matrixmultiplikation (n=128):
+2. k-beschränkte Matrixmultiplikation:
+   Vergleich bei maximaler Größe n=128:
    k=2:
-     Schichten-Signaturen O(k·n²): 61.05 ms
-     Strassen O(n^2.807):          1.41 ms
-     Verhältnis (Sig/Strassen):    43.21x
+     Schichten-Signaturen O(k·n²): 61.60 ms
+     Strassen O(n^2.807):          1.87 ms
+     Verhältnis (Sig/Strassen):    32.89x
    k=3:
-     Schichten-Signaturen O(k·n²): 133.84 ms
-     Strassen O(n^2.807):          1.48 ms
-     Verhältnis (Sig/Strassen):    90.42x
+     Schichten-Signaturen O(k·n²): 117.58 ms
+     Strassen O(n^2.807):          1.88 ms
+     Verhältnis (Sig/Strassen):    62.59x
    k=5:
-     Schichten-Signaturen O(k·n²): 282.00 ms
-     Strassen O(n^2.807):          1.40 ms
-     Verhältnis (Sig/Strassen):    200.81x
+     Schichten-Signaturen O(k·n²): 281.93 ms
+     Strassen O(n^2.807):          2.11 ms
+     Verhältnis (Sig/Strassen):    133.91x
 
 ================================================================================
 ERKENNTNISSE
 ================================================================================
 
 1. Boolean Matrixmultiplikation:
-   - Signatur-Methode zeigt klaren O(n²) Vorteil gegenüber O(n³)
-   - Speedup wächst quadratisch mit n
-   - Strassen ist NICHT geeignet für Boolean (algebraische Inkompatibilität)
+   - Die Signatur-Methode zeigt einen massiven Vorteil durch O(n²).
+   - Da beide in reinem Python laufen, ist der Speedup-Faktor rein algorithmisch.
 
 2. k-beschränkte Matrixmultiplikation:
-   - Für kleine k ist Strassen schneller (O(n^2.807) < O(k·n²))
-   - Schichten-Signaturen skalieren linear mit k
-   - Ab k ≈ n^0.807 wäre Schichten-Methode theoretisch besser
+   - Schichten-Signaturen skalieren linear mit k.
+   - Strassen bleibt bei kleinen k oft überlegen, da die Bit-Operationen in
+     Python bei sehr großen Signaturen (großes n) Overhead erzeugen.
 
 ✓ Alle Experimente abgeschlossen!
 

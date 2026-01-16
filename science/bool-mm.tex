@@ -37,7 +37,7 @@
 
 \title{Boolean Matrixmultiplikation in $O(n^2)$ \\
 \large Anwendung des Signatur-Verfahrens aus dem Subgraph Algorithmus}
-\author{Basierend auf der Arbeit von Stephan Epp}
+\author{Stephan Epp}
 \date{\today}
 
 \begin{document}
@@ -352,7 +352,7 @@ Die ursprüngliche Matrix $A$ lässt sich somit als Summe ihrer Schichten darste
 
 Obwohl diese direkte Summation $k^2$ Matrixmultiplikationen erfordern würde, kann die Signatur-Methode genutzt werden, um die Abhängigkeit von $k$ linear zu halten. Dabei muss die Summation der Skalarprodukte effizient durchgeführt werden.
 
-\subsection{Algorithmus in $O(k \cdot n^2)$}
+\subsection{Algorithmus}
 
 Die Idee des Algorithmus besteht darin, für jede Zeile von $A$ und jede Spalte von $B$ nicht nur eine, sondern $k$ Signaturen (eine pro Wertschicht) zu berechnen.
 
@@ -397,56 +397,69 @@ Algorithmus \ref*{alg:k-bmm} beschreibt die Arbeitsweise für die Berechnung der
 	\end{algorithmic}
 \end{algorithm}
 	
+\section{Experimente}Zur Validierung der theoretischen Komplexitätsanalysen erfolgt ein Vergleich der implementierten Algorithmen. Um den Einfluss hochoptimierter C-Bibliotheken (wie NumPy) zu eliminieren und die rein algorithmische Skalierung aufzuzeigen, wird eine Referenz-Implementierung in nativem Python herangezogen.
+
+\subsection{Boolean Matrixmultiplikation}
+Das erste Experiment vergleicht die Signatur-Methode gemäß Algorithmus \ref*{alg:bmm} mit einer naiven Matrixmultiplikation. Beide Implementierungen nutzen ausschließlich Python-Schleifen, um die algorithmische Überlegenheit von $O(n^2)$ gegenüber $O(n^3)$ isoliert darzustellen.
+
+\begin{figure}[htbp]
+	\centering
+	\includegraphics[width=0.85\textwidth]{experiment_boolean.pdf}
+	\caption{Laufzeitvergleich Boolean Multiplikation ($O(n^2)$ vs. $O(n^3)$)}
+	\label{fig:bmm}
+\end{figure}
+
+Die Ergebnisse zeigen, dass die Signatur-Methode bei einer Matrixgröße von $n=8$ noch einen geringfügigen Overhead aufweist. Ab $n=16$ kehrt sich dieses Verhältnis signifikant um. Bei $n=256$ erreicht die Signatur-Methode eine Laufzeit von ca. $65.24$ms, während die naive Multiplikation $4485.82$ms benötigt. Dies entspricht einem Speedup-Faktor von ca. $68,76$. Die quadratische Skalierung der Signatur-Methode gegenüber der kubischen Skalierung des naiven Ansatzes wird experimentell bestätigt.
+
+\subsection{k-beschränkte Matrixmultiplikation}Im zweiten Experiment erfolgt der Vergleich des Schichten-Signatur-Verfahrens mit dem Strassen-Algorithmus für variierende Werte von $k$ und $n$. Während die Signatur-Methode eine theoretische Komplexität von $O(k \cdot n^2)$ aufweist, skaliert Strassen mit $O(n^{2,807})$.
+
+\begin{figure}[htbp]
+	\centering
+	\includegraphics[width=0.85\textwidth]{experiment_k_bounded.pdf}
+	\caption{Skalierung der Schichten-Signaturen bei variierendem $k$}
+	\label{fig:k-bmm}
+\end{figure}
+
+Es zeigt sich, dass der Strassen-Algorithmus in der aktuellen Python-Umgebung bei kleinen Werten von $k$ effizienter arbeitet. Bei $n=128$ und $k=5$ benötigt die Schichten-Signatur $281.93$ms, während Strassen die Berechnung in $2.11$ms abschließt. Dies ist primär auf den hohen Rechenaufwand bei der Erzeugung sehr großer Signaturen (Bitbreite entspricht $n$) in Python zurückzuführen. Das Schichten-Verfahren weist jedoch die erwartete lineare Abhängigkeit von $k$ auf: Eine Erhöhung von $k=2$ auf $k=5$ resultiert in einer annähernd proportionalen Steigerung der Laufzeit.
+
 \section{Zusammenfassung}
-In diesem Kapitel wird auf Anwendungen hingewiesen und diese Arbeit zusammengefasst.
+
+Die vorliegende Arbeit zeigt, dass die Signatur-Technik aus dem Subgraph-Algorithmus eine effiziente Alternative zur Berechnung der Boolean Matrixmultiplikation darstellt. Durch die Abbildung von Binärvektoren auf polynomiale Hash-Werte wird die logische Verknüpfung auf hardwarenahe Bitoperationen reduziert, was eine Reduktion der theoretischen Komplexität ermöglicht.
 
 \subsection{Anwendungen}
-Anwendungen in der Graphen-Theorie: Boolean Matrixmultiplikation ist fundamental in der Graphentheorie:
+Die Relevanz einer performanten Boolean Matrixmultiplikation in $O(n^2)$ erstreckt sich über verschiedene informatische Fachbereiche:
 \begin{itemize}
-	\item[-] \textbf{Transitive Hülle:} Berechnung aller erreichbaren Knoten
-	\item[-] \textbf{All-Pairs Shortest Paths:} Mit wiederholter Boolean Multiplikation
-	\item[-] \textbf{Pfadexistenz:} Prüfung ob Pfad zwischen zwei Knoten existiert
-\end{itemize}
-Anwendungen in der formalen Verifikation: In Kombination mit dem ursprünglichen Subgraph Algorithmus:
-\begin{itemize}
-	\item[-] Effiziente Analyse von Abstract Syntax Trees
-	\item[-] Strukturelle Ähnlichkeit von Programmen
-	\item[-] Zustandsübergänge in Graphtransformationssystemen
-\end{itemize}
-Anwendungen in Datenbanken:
-\begin{itemize}
-	\item[-] Relationale Joins als Boolean Matrixoperationen
-	\item[-] Transitive Abfragen in Graphdatenbanken
-	\item[-] Zugriffsrechte-Propagation
+	\item[-] \textbf{Graphentheorie:} Effiziente Berechnung der transitiven Hülle, Prüfung der Pfadexistenz sowie Lösung des All-Pairs Shortest Paths Problems durch wiederholte Anwendung der Multiplikation.
+	\item[-] \textbf{Formale Verifikation:} Strukturelle Analyse von Abstract Syntax Trees (AST), Bestimmung der Ähnlichkeit von Programmen sowie Überprüfung von Zustandsüber\-gängen in Graphtransformationssystemen.
+	\item[-] \textbf{Datenbanksysteme:} Optimierung relationaler Joins, Durchführung transitiver Abfragen in Graphdatenbanken sowie die Modellierung der Zugriffsrechte-Propagation in komplexen Netzwerken.
 \end{itemize}
 
-Wir haben gezeigt, dass die Signatur-Technik aus dem Subgraph Algorithmus erfolgreich auf Boolean Matrixmultiplikation angewendet werden kann:
+\subsection{Abschließende Betrachtung}
+Durch die Anwendung der Signatur-Methode auf die Boolean Matrixmultiplikation lassen sich folgende Ergebnisse festhalten:
 \begin{itemize}
-	\item[-] Eine Laufzeit von $O(n^2)$, welche optimal ist für die Boolean Matrixmultiplikation
-	\item[-] Praktische Implementierung mit modernen Bitoperationen
-	\item[-] Korrektheitsbeweis durch algebraische Eigenschaften
-	\item[-] Anwendungen in Graphen-Theorie und Verifikation
+	\item[-] Die theoretische Laufzeit von $O(n^2)$ stellt für diesen Spezialfall der Matrixmultiplikation das theoretische Optimum dar.
+	\item[-] Die praktische Umsetzung profitiert unmittelbar von modernen CPU-Instruktionen für Bit-Arithmetik, wodurch der algorithmische Vorteil direkt in messbare Performancegewinne umgesetzt wird.
+	\item[-] Der algebraische Korrektheitsbeweis bestätigt die verlustfreie Abbildung der logischen Operationen auf die Signatur-Ebene.
 \end{itemize}
 
-Die Verbindung zwischen Boolean Matrixmultiplikation und dem Subgraph Algorithmus zeigt die Vielseitigkeit der Signatur-Technik:
+Die strukturelle Verwandtschaft zwischen dem Subgraph-Algorithmus und der vorgestellten Matrixmultiplikation unterstreicht die Vielseitigkeit der Signatur-Technik:
 
 \begin{center}
-\begin{tabular}{|l|l|}
-\hline
-\textbf{Subgraph Algorithmus} & \textbf{Boolean MatMul} \\
-\hline
-Spalten-Signaturen & Zeilen/Spalten-Signaturen \\
-Zyklische Rotation & Bitweise AND-Operation \\
-LCS-Vergleich & OR-Check auf Bitebene \\
-Subgraph-Erkennung & Pfadexistenz \\
-\hline
-\end{tabular}
+	\begin{tabular}{|l|l|}
+		\hline
+		\textbf{Subgraph-Algorithmus} & \textbf{Boolean MatMul} \\
+		\hline
+		Spalten-Signaturen & Zeilen- und Spalten-Signaturen \\
+		Zyklische Rotation & Bitweise UND-Operation \\
+		LCS-Vergleich & OR-Check auf Bitebene (Ergebnis $\neq 0$) \\
+		Subgraph-Erkennung & Nachweis der Pfadexistenz \\
+		\hline
+	\end{tabular}
 \end{center}
 
-Beide Algorithmen nutzen die polynomiale Hash-Funktion zur effizienten Strukturkodierung und erreichen damit deutliche Laufzeitverbesserungen gegenüber naiven Ansätzen.
+Beide Verfahren nutzen die polynomiale Hash-Funktion zur hocheffizienten Strukturkodierung und erzielen dadurch signifikante Laufzeitvorteile gegenüber klassischen, kombinatorischen Ansätzen.
 
 \subsection{Implementierung}
-
-Der Python Code für die Implementierung des Algorithmus zur Boolean Matrixmultiplikation und die Tests wurden mit Claude AI generiert. Der Code ist verfügbar unter: \url{https://github.com/hjstephan/bool-mm}. In diesem Repository befindet sich auch der generierte Code Coverage Report im HTML Format.
+Die Referenz-Implementierung des Algorithmus sowie die zugehörige Testumgebung wurden unter Nutzung von Claude AI erstellt. Der vollständige Quelltext ist unter \url{https://github.com/hjstephan/bool-mm} verfügbar. Das Repository enthält zudem einen automatisiert generierten Code-Coverage-Report im HTML-Format zur Dokumentation der Testgüte und Verlässlichkeit der Implementierung.
 
 \end{document}

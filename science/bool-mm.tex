@@ -200,58 +200,92 @@ Algorithmus \ref{alg:bmm} beschreibt die Arbeitsweise zur Boolean Matrixmultipli
 \subsection{Implementierung}
 In diesem Kapitel wird auf die Implementierung des Algorithmus \ref{alg:bmm} eingegangen. Dabei wird Python als Programmiersprache verwendet. Listing 1 zeigt die Kernfunktionen der Implementierung.
 \begin{lstlisting}[language=Python, caption=Signatur-Berechnung für Zeilen und Spalten]
-def _compute_row_signature(self, row: np.ndarray) -> int:
-    """Berechnet Signatur fuer eine Zeile."""
-    n = len(row)
-    signature = sum(2**i for i in range(n) if row[i] == 1)
-    return signature
+def compute_row_signature(self, row: np.ndarray) -> int:
+	"""Berechnet Signatur fuer eine Zeile."""
+	n = len(row)
+	signature = sum(int(row[i]) * (2 ** i) for i in range(n))
+	return signature
 
-def _compute_column_signature(self, col: np.ndarray) -> int:
-    """Berechnet Signatur fuer eine Spalte."""
-    n = len(col)
-    signature = sum(2**i for i in range(n) if col[i] == 1)
-    return signature
+def compute_column_signature(self, col: np.ndarray) -> int:
+	"""Berechnet Signatur fuer eine Spalte."""
+	n = len(col)
+	signature = sum(int(col[i]) * (2 ** i) for i in range(n))
+	return signature
 
-def _precompute_signatures(self, A: np.ndarray, B: np.ndarray):
-    """Vorberechnung aller Signaturen."""
-    n = A.shape[0]
-    m = B.shape[1]
-    
-    # Zeilen-Signaturen von A
-    row_sigs_A = [self._compute_row_signature(A[i, :]) 
-                  for i in range(n)]
-    
-    # Spalten-Signaturen von B
-    col_sigs_B = [self._compute_column_signature(B[:, j]) 
-                  for j in range(m)]
-    
-    return row_sigs_A, col_sigs_B
+def precompute_signatures(
+	self, 
+	A: np.ndarray, 
+	B: np.ndarray,
+	use_cache: bool = False
+) -> Tuple[List[int], List[int]]:
+	"""
+	Berechnet alle Zeilen-Signaturen von A und Spalten-Signaturen von B.
+	"""
+	n = A.shape[0]
+	m = B.shape[1]
+	
+	# Zeilen-Signaturen von A
+	if use_cache and 'A' in self._row_signatures_cache:
+		row_sigs_A = self._row_signatures_cache['A']
+	else:
+		row_sigs_A = [
+			self.compute_row_signature(A[i, :]) 
+			for i in range(n)
+		]
+		if use_cache:
+			self._row_signatures_cache['A'] = row_sigs_A
+	
+		# Spalten-Signaturen von B
+		if use_cache and 'B' in self._col_signatures_cache:
+			col_sigs_B = self._col_signatures_cache['B']
+		else:
+			col_sigs_B = [
+				self.compute_column_signature(B[:, j]) 
+				for j in range(m)
+			]
+		if use_cache:
+			self._col_signatures_cache['B'] = col_sigs_B
+	
+	return row_sigs_A, col_sigs_B
 \end{lstlisting}
 
 \begin{lstlisting}[language=Python, caption=Boolean Multiplikation via Signaturen]
-def multiply_optimized(self, A: np.ndarray, B: np.ndarray) -> np.ndarray:
-    """Boolean Matrixmultiplikation in O(n^2)."""
-    n, k1 = A.shape
-    k2, m = B.shape
-    
-    if k1 != k2:
-        raise ValueError("Dimensionen passen nicht")
-    
-    # Phase 1: Signaturen vorberechnen
-    row_sigs_A, col_sigs_B = self._precompute_signatures(A, B)
-    
-    # Phase 2: Multiplikation via Bitoperationen
-    C = np.zeros((n, m), dtype=int)
-    
-    for i in range(n):
-        for j in range(m):
-            # Bitweise AND in O(1)
-            and_result = row_sigs_A[i] & col_sigs_B[j]
-            
-            # Boolean OR Check
-            C[i, j] = 1 if and_result != 0 else 0
-    
-    return C
+def multiply_optimized(
+        self, 
+        A: np.ndarray, 
+        B: np.ndarray,
+        use_cache: bool = False
+    ) -> np.ndarray:
+        """
+        Boolean Matrixmultiplikation mit Signatur-Optimierung.
+        """
+        # Validierung
+        self._validate_matrix(A, "Matrix A")
+        self._validate_matrix(B, "Matrix B")
+        self._validate_dimensions(A, B)
+        
+        n, k = A.shape
+        _, m = B.shape
+        
+        # Phase 1: Signaturen vorberechnen
+        row_sigs_A, col_sigs_B = self.precompute_signatures(A, B, use_cache)
+        
+        # Phase 2: Boolean Multiplikation via Signaturen
+        C = np.zeros((n, m), dtype=int)
+        
+        for i in range(n):
+            for j in range(m):
+                # Bitweise AND in O(1)
+                and_result = self.boolean_and_via_signature(
+                    row_sigs_A[i], 
+                    col_sigs_B[j]
+                )
+                
+                # Boolean OR Check
+                if self.boolean_or_check(and_result):
+                    C[i, j] = 1
+        
+        return C
 \end{lstlisting}
 
 \subsection{Beispiel}

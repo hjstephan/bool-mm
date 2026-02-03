@@ -4,7 +4,7 @@ Tests für k-beschränkte Matrixmultiplikation.
 
 import pytest
 import numpy as np
-from k_bounded_multiplier import KBoundedMatrixMultiplier
+from src.k_bounded_multiplier import KBoundedMatrixMultiplier
 
 
 class TestKBoundedMultiplier:

@@ -1,9 +1,18 @@
+-e git+ssh://git@github.com/hjstephan/bool-mm.git
+contourpy
 coverage
+cycler
+fonttools
 iniconfig
+kiwisolver
+matplotlib
 numpy
 packaging
+pillow
 pluggy
 Pygments
+pyparsing
 pytest
 pytest-cov
-matplotlib
+python-dateutil
+six

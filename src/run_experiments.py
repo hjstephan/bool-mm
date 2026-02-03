@@ -11,9 +11,9 @@ import time
 import matplotlib.pyplot as plt
 from pathlib import Path
 
-from boolean_matrix_multiplier import BooleanMatrixMultiplier
-from strassen_multiplier import StrassenMultiplier, KBoundedStrassenMultiplier
-from k_bounded_multiplier import KBoundedMatrixMultiplier
+from .boolean_matrix_multiplier import BooleanMatrixMultiplier
+from .strassen_multiplier import StrassenMultiplier, KBoundedStrassenMultiplier
+from .k_bounded_multiplier import KBoundedMatrixMultiplier
 
 
 def pure_python_naive_multiply(A: np.ndarray, B: np.ndarray) -> np.ndarray:

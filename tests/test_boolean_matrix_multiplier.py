@@ -6,7 +6,7 @@ Umfasst Unit-Tests, Integration-Tests und Benchmarks für maximale Code Coverage
 
 import pytest
 import numpy as np
-from boolean_matrix_multiplier import BooleanMatrixMultiplier
+from src.boolean_matrix_multiplier import BooleanMatrixMultiplier
 
 
 class TestSignatureComputation:

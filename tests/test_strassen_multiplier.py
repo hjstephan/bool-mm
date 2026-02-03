@@ -4,7 +4,7 @@ Tests für Strassen Matrixmultiplikation.
 
 import pytest
 import numpy as np
-from strassen_multiplier import StrassenMultiplier, KBoundedStrassenMultiplier
+from src.strassen_multiplier import StrassenMultiplier, KBoundedStrassenMultiplier
 
 
 class TestStrassenMultiplier:

@@ -1,4 +1,4 @@
--e git+ssh://git@github.com/hjstephan/bool-mm.git
+-e git+ssh://git@github.com/hjstephan/bool-mm.git@main#egg
 contourpy
 coverage
 cycler
